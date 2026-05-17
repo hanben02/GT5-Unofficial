@@ -179,13 +179,6 @@ public class MTERadioHatch extends MTEHatch implements RecipeMapWorkable {
                     return;
                 }
 
-                ItemData itemData = GTOreDictUnificator.getAssociation(lStack);
-                if (itemData != null) {
-                    Materials mat = itemData.mMaterial.mMaterial;
-                    this.colorForGUI = new short[] { mat.getRGBA()[0], mat.getRGBA()[1], mat.getRGBA()[2] };
-                } else {
-                    this.colorForGUI = new short[] { 0x37, 0x37, 0x37 };
-                }
                 if (this.lastFail && GTUtility.areStacksEqual(this.lastUsedItem, lStack, true)) {
                     return;
                 }
@@ -218,9 +211,15 @@ public class MTERadioHatch extends MTEHatch implements RecipeMapWorkable {
                         }
                     }
                     if (this.radioHatchMaterial == null) {
+                        this.colorForGUI = new short[] { 0x37, 0x37, 0x37 };
                         this.lastFail = true;
                         this.lastUsedItem = this.mInventory[0] == null ? null : this.mInventory[0].copy();
                     } else {
+                        ItemData itemData = GTOreDictUnificator.getAssociation(lStack);
+                        if (itemData != null) {
+                            Materials mat = itemData.mMaterial.mMaterial;
+                           this.colorForGUI = new short[] { mat.getRGBA()[0], mat.getRGBA()[1], mat.getRGBA()[2] };
+                        }
                         this.lastFail = false;
                         this.lastUsedItem = this.mInventory[0].copy();
                         this.sievert = radioHatchMaterial.recipeSievert;
