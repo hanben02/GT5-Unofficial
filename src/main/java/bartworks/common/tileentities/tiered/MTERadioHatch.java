@@ -215,11 +215,6 @@ public class MTERadioHatch extends MTEHatch implements RecipeMapWorkable {
                         this.lastFail = true;
                         this.lastUsedItem = this.mInventory[0] == null ? null : this.mInventory[0].copy();
                     } else {
-                        ItemData itemData = GTOreDictUnificator.getAssociation(lStack);
-                        if (itemData != null) {
-                            Materials mat = itemData.mMaterial.mMaterial;
-                           this.colorForGUI = new short[] { mat.getRGBA()[0], mat.getRGBA()[1], mat.getRGBA()[2] };
-                        }
                         this.lastFail = false;
                         this.lastUsedItem = this.mInventory[0].copy();
                         this.sievert = radioHatchMaterial.recipeSievert;
@@ -230,6 +225,14 @@ public class MTERadioHatch extends MTEHatch implements RecipeMapWorkable {
                         this.updateSlots();
                     }
                 }
+                if (this.radioHatchMaterial != null) {
+                    ItemData itemData = GTOreDictUnificator.getAssociation(lStack);
+                    if (itemData != null) {
+                        Materials mat = itemData.mMaterial.mMaterial;
+                        this.colorForGUI = new short[] { mat.getRGBA()[0], mat.getRGBA()[1], mat.getRGBA()[2] };
+                    }
+                }
+
             }
         }
     }
