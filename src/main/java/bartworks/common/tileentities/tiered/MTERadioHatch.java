@@ -15,8 +15,8 @@ package bartworks.common.tileentities.tiered;
 
 import static bartworks.common.loaders.RadioHatchMaterialLoader.getRadioHatchMaterialFromInput;
 import static bartworks.common.loaders.RadioHatchMaterialLoader.getRadioHatchMaterialList;
-import static gregtech.api.enums.GTValues.ticksBetweenSounds;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -35,6 +35,8 @@ import bartworks.common.loaders.RadioHatchMaterialLoader.RadioHatchMaterial;
 import bartworks.util.BWColorUtil;
 import bartworks.util.BWTooltipReference;
 import bartworks.util.MathUtils;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.ITexture;
@@ -48,6 +50,7 @@ import gregtech.api.recipe.RecipeMap;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTUtility;
+import gregtech.client.GTSoundLoop;
 import gregtech.common.gui.modularui.hatch.MTERadioHatchGui;
 
 public class MTERadioHatch extends MTEHatch implements RecipeMapWorkable {
@@ -62,6 +65,7 @@ public class MTERadioHatch extends MTEHatch implements RecipeMapWorkable {
     private ItemStack lastUsedItem = null;
     private boolean lastFail = false;
     private RadioHatchMaterial radioHatchMaterial = null;
+    private GTSoundLoop soundLoop;
 
     public MTERadioHatch(int aID, String aName, String aNameRegional, int aTier) {
         super(
@@ -165,12 +169,6 @@ public class MTERadioHatch extends MTEHatch implements RecipeMapWorkable {
                 this.timer = 1;
             }
 
-            if (myMetaTileEntity.mTickTimer > myMetaTileEntity.mLastSoundTick + ticksBetweenSounds
-                && this.sievert > 0) {
-                this.sendLoopStart((byte) 1);
-                myMetaTileEntity.mLastSoundTick = myMetaTileEntity.mTickTimer;
-            }
-
             if (this.mass == 0) {
                 ItemStack lStack = this.mInventory[0];
 
@@ -234,6 +232,8 @@ public class MTERadioHatch extends MTEHatch implements RecipeMapWorkable {
                 }
 
             }
+        } else {
+            updateSoundLoop();
         }
     }
 
@@ -315,12 +315,21 @@ public class MTERadioHatch extends MTEHatch implements RecipeMapWorkable {
         super.loadNBTData(aNBT);
     }
 
-    @Override
-    public void startSoundLoop(byte aIndex, double aX, double aY, double aZ) {
-        super.startSoundLoop(aIndex, aX, aY, aZ);
-        ResourceLocation rl = new ResourceLocation(MainMod.MOD_ID, "hatch.RadOn");
-        if (aIndex == 1) {
-            GTUtility.doSoundAtClient(rl, 10, 1.0F, aX, aY, aZ);
+    @SideOnly(Side.CLIENT)
+    protected void updateSoundLoop() {
+        if (this.sievert > 0 && !getBaseMetaTileEntity().isMuffled()) {
+            if (soundLoop == null || soundLoop.isDonePlaying()) {
+                ResourceLocation rl = new ResourceLocation(MainMod.MOD_ID, "hatch.RadOn");
+                soundLoop = new GTSoundLoop(rl, getBaseMetaTileEntity(), false, true).setVolume(1f);
+                Minecraft.getMinecraft()
+                    .getSoundHandler()
+                    .playSound(soundLoop);
+            }
+        } else {
+            if (soundLoop != null) {
+                soundLoop.setFadeMe(true);
+                soundLoop = null;
+            }
         }
     }
 
