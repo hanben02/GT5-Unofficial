@@ -174,6 +174,7 @@ public class MTERadioHatch extends MTEHatch implements RecipeMapWorkable {
 
                 if (lStack == null) {
                     this.colorForGUI = new short[] { 0x37, 0x37, 0x37 };
+                    myMetaTileEntity.setActive(false);
                     return;
                 }
 
@@ -213,6 +214,7 @@ public class MTERadioHatch extends MTEHatch implements RecipeMapWorkable {
                         this.lastFail = true;
                         this.lastUsedItem = this.mInventory[0] == null ? null : this.mInventory[0].copy();
                     } else {
+                        myMetaTileEntity.setActive(false);
                         this.lastFail = false;
                         this.lastUsedItem = this.mInventory[0].copy();
                         this.sievert = radioHatchMaterial.recipeSievert;
@@ -224,12 +226,14 @@ public class MTERadioHatch extends MTEHatch implements RecipeMapWorkable {
                     }
                 }
                 if (this.radioHatchMaterial != null) {
+                    myMetaTileEntity.setActive(true);
                     ItemData itemData = GTOreDictUnificator.getAssociation(lStack);
                     if (itemData != null) {
                         Materials mat = itemData.mMaterial.mMaterial;
                         this.colorForGUI = new short[] { mat.getRGBA()[0], mat.getRGBA()[1], mat.getRGBA()[2] };
                     }
                 }
+
             }
         } else {
             updateSoundLoop();
@@ -313,20 +317,22 @@ public class MTERadioHatch extends MTEHatch implements RecipeMapWorkable {
         this.decayTime = aNBT.getLong("decay");
         super.loadNBTData(aNBT);
     }
+
     @SideOnly(Side.CLIENT)
     protected void updateSoundLoop() {
-        if (this.sievert > 0 && !getBaseMetaTileEntity().isMuffled()) {
-            if (soundLoop == null || soundLoop.isDonePlaying()) {
+        if (this.getBaseMetaTileEntity()
+            .isActive() && !getBaseMetaTileEntity().isMuffled()) {
+            if (this.soundLoop == null || this.soundLoop.isDonePlaying()) {
                 ResourceLocation rl = new ResourceLocation(MainMod.MOD_ID, "hatch.RadOn");
-                soundLoop = new GTSoundLoop(rl, getBaseMetaTileEntity(), false, true).setVolume(1f);
+                this.soundLoop = new GTSoundLoop(rl, getBaseMetaTileEntity(), false, true).setVolume(1f);
                 Minecraft.getMinecraft()
                     .getSoundHandler()
-                    .playSound(soundLoop);
+                    .playSound(this.soundLoop);
             }
         } else {
-            if (soundLoop != null) {
-                soundLoop.setFadeMe(true);
-                soundLoop = null;
+            if (this.soundLoop != null) {
+                this.soundLoop.setFadeMe(true);
+                this.soundLoop = null;
             }
         }
     }
