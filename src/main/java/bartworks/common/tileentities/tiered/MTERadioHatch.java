@@ -320,11 +320,10 @@ public class MTERadioHatch extends MTEHatch implements RecipeMapWorkable {
 
     @SideOnly(Side.CLIENT)
     protected void updateSoundLoop() {
-        if (this.getBaseMetaTileEntity()
-            .isActive() && !getBaseMetaTileEntity().isMuffled()) {
+        if (getBaseMetaTileEntity().isActive() && !getBaseMetaTileEntity().isMuffled()) {
             if (this.soundLoop == null || this.soundLoop.isDonePlaying()) {
                 ResourceLocation rl = new ResourceLocation(MainMod.MOD_ID, "hatch.RadOn");
-                this.soundLoop = new GTSoundLoop(rl, getBaseMetaTileEntity(), false, true).setVolume(1f);
+                this.soundLoop = new GTSoundLoop(rl, getBaseMetaTileEntity(), false, true);
                 Minecraft.getMinecraft()
                     .getSoundHandler()
                     .playSound(this.soundLoop);
